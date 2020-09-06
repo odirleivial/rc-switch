@@ -79,6 +79,11 @@ class RCSwitch {
     void sendTriState(const char* sCodeWord);
     void send(unsigned long code, unsigned int length);
     void send(const char* sCodeWord);
+
+    void sendQuadState(char* sCodeWord);
+    void sendQQ();
+    void ßsendSync();
+
     
     #if not defined( RCSwitchDisableReceiving )
     void enableReceive(int interrupt);

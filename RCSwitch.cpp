@@ -135,6 +135,16 @@ void RCSwitch::setProtocol(int nProtocol) {
   if (nProtocol < 1 || nProtocol > numProto) {
     nProtocol = 1;  // TODO: trigger an error, e.g. "bad protocol" ???
   }
+
+  /**
+   modified quad-state version of the library found here: http://physudo.blogspot.com/2013/08/home-automation-mit-dem-arduino-und-433_18.html
+   */
+  if (nProtocol == 4) {
+    this->setPulseLength(250);
+    this->setRepeatTransmit(4);
+  }
+
+
 #if defined(ESP8266) || defined(ESP32)
   this->protocol = proto[nProtocol-1];
 #else
@@ -473,6 +483,68 @@ void RCSwitch::sendTriState(const char* sCodeWord) {
   }
   this->send(code, length);
 }
+
+/**
+  modified quad-state version of the library found here: http://physudo.blogspot.com/2013/08/home-automation-mit-dem-arduino-und-433_18.html
+  edit: send quad state command
+*/
+void RCSwitch::sendQuadState(char* sCodeWord) {
+  for (int nRepeat=0; nRepeat<nRepeatTransmit; nRepeat++) {
+    //sync bit is sent BEFORE transmission!
+ this->sendSync(); 
+ int i = 0;
+    while (sCodeWord[i] != '\0') {
+      switch(sCodeWord[i]) {
+        case '0':
+          this->sendT0();
+        break;
+        case 'F':
+          this->sendTF();
+        break;
+        case '1':
+          this->sendT1();
+        break;
+        case 'Q':
+          this->sendQQ();
+        break;
+      }
+      i++;
+    }   
+  }
+}
+
+/**
+ * modified quad-state version of the library found here: http://physudo.blogspot.com/2013/08/home-automation-mit-dem-arduino-und-433_18.html
+ * edit: Sends a Quad-State "Q" Bit
+ *            ___   _
+ * Waveform: |   |_| |___ 
+ */
+void RCSwitch::sendQQ() {
+  this->transmit(3,1);
+  this->transmit(1,3);
+}
+
+/**
+  modified quad-state version of the library found here: http://physudo.blogspot.com/2013/08/home-automation-mit-dem-arduino-und-433_18.html
+*/
+ß{
+
+    if (this->nProtocol == 1){
+        this->transmit(1,31);
+    }
+    else if (this->nProtocol == 2) {
+        this->transmit(1,10);
+    }
+    else if (this->nProtocol == 3) {
+        this->transmit(1,71);
+    }
+ 
+    //edit: snyc bit for shutters
+    else if (this->nProtocol == 4) {
+        this->transmit(18,6);
+    }
+}
+
 
 /**
  * @param sCodeWord   a binary code word consisting of the letter 0, 1
