@@ -82,7 +82,7 @@ class RCSwitch {
 
     void sendQuadState(char* sCodeWord);
     void sendQQ();
-    void ßsendSync();
+    void sendSync();
 
     
     #if not defined( RCSwitchDisableReceiving )
